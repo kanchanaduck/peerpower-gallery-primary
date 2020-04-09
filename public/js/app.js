@@ -1994,6 +1994,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'app',
@@ -2068,6 +2071,55 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
     },
+
+    /* processFile: function(e){
+        let currentObj = this;
+        for( var i = 0; i < e.target.files.length; i++ ){
+        let formData = new FormData();
+            let file = e.target.files[i];
+            if(file.type!='image/jpeg' && file.type!='image/png'){
+                this.imgs.push({
+                    text: 'File type not supported. - '+file.name,
+                    icon: true,
+                })
+            }
+            else if(file.size>10485760){
+                this.imgs.push({
+                    text: 'File size exceeded. - '+file.name,
+                    icon: true,
+                })
+            }
+            else{
+                formData.append('files[0]', file);
+                axios.post(
+                '/store', 
+                formData, {
+                    headers: {
+                        'content-type': 'multipart/form-data',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    onUploadProgress: function( progressEvent ) {
+                        currentObj.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
+                        currentObj.imgs.push({
+                            progressPercent: parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
+                        })
+                    }.bind(this)
+                })
+                .then(function (response) {
+                    response.data.files.forEach(function(entry) {
+                        currentObj.imgs.push({
+                            id: entry.insert_id,
+                            name: entry.file_name
+                        })
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                }); 
+            }
+        }
+        
+    },  */
     remove: function remove(index, id) {
       var currentObj = this;
       axios["delete"]('/api/image/' + id).then(function (response) {
@@ -2082,10 +2134,11 @@ __webpack_require__.r(__webpack_exports__);
     openModal: function openModal(e) {
       var img = e.target.closest('.img-container').querySelector('img');
       console.log(img);
-      vue_fancybox__WEBPACK_IMPORTED_MODULE_0___default()(img, this.imgs);
+      console.log(this.imgs); // fancyBox(img, this.imgs);
     },
     open: function open(e) {
       console.log(e.target);
+      console.log(this.imageList);
       vue_fancybox__WEBPACK_IMPORTED_MODULE_0___default()(e.target, this.imageList);
     }
   },
@@ -6760,7 +6813,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.uploader[data-v-5761a7b7] {\n  display: block;\n  clear: both;\n  margin: 0 auto;\n  width: 100%;\n}\n.uploader[data-v-5761a7b7]:hover{\n  cursor: pointer;\n}\n.uploader label[data-v-5761a7b7] {\n  float: left;\n  clear: both;\n  width: 100%;\n  padding: 2rem 1.5rem;\n  text-align: center;\n  background: #fff;\n  border-radius: 7px;\n  border: 3px dashed #eee;\n  transition: all .2s ease;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n}\n.uploader label.hover #start i.fas[data-v-5761a7b7] {\n  transform: scale(0.8);\n  opacity: 0.3;\n}\n.uploader #start[data-v-5761a7b7] {\n  float: left;\n  clear: both;\n  width: 100%;\n}\n.uploader #start.hidden[data-v-5761a7b7] {\n  display: none;\n}\n.uploader #start i.fas[data-v-5761a7b7] {\n  font-size: 50px;\n  margin-bottom: 1rem;\n  transition: all .2s ease-in-out;\n}\n.uploader #response[data-v-5761a7b7] {\n  float: left;\n  clear: both;\n  width: 100%;\n}\n.uploader input[type=\"file\"][data-v-5761a7b7] {\n  display: none;\n}\n.uploader div[data-v-5761a7b7] {\n  margin: 0 0 .5rem 0;\n  color: #5f6982;\n}\n.img-container[data-v-5761a7b7]{\n  width: 100%;\n  min-height: 120px;\n  text-align: center;\n}\n.img-container.have-progress[data-v-5761a7b7]{\n    padding-top: 60px;\n}\n.img-container i.fa-exclamation-triangle[data-v-5761a7b7] {\n  font-size: 60px;\n  color: #900;\n}\n.img-container p[data-v-5761a7b7] {\n  color: #900;\n}\n.img-container img[data-v-5761a7b7] {\n  width: 100%;\n  max-height: 150px;\n}\n.img-container .img-manage[data-v-5761a7b7] {\n  position: absolute;\n  top: 50%;\n  left: 42%;\n  transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  list-style: none;\n}\n.img-container .img-manage li[data-v-5761a7b7]{\n    display:inline;\n}\n.img-container .img-manage a[data-v-5761a7b7] {\n    color: #fff;\n}\n.image[data-v-5761a7b7] {\n    float: left;\n    background-size: cover;\n    background-repeat: no-repeat;\n    background-position: center center;\n    border: 1px solid #ebebeb;\n    margin: 5px;\n}\n\n", ""]);
+exports.push([module.i, "\n.uploader[data-v-5761a7b7] {\n  display: block;\n  clear: both;\n  margin: 0 auto;\n  width: 100%;\n}\n.uploader[data-v-5761a7b7]:hover{\n  cursor: pointer;\n}\n.uploader label[data-v-5761a7b7] {\n  float: left;\n  clear: both;\n  width: 100%;\n  padding: 2rem 1.5rem;\n  text-align: center;\n  background: #fff;\n  border-radius: 7px;\n  border: 3px dashed #eee;\n  transition: all .2s ease;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n}\n.uploader label.hover #start i.fas[data-v-5761a7b7] {\n  transform: scale(0.8);\n  opacity: 0.3;\n}\n.uploader #start[data-v-5761a7b7] {\n  float: left;\n  clear: both;\n  width: 100%;\n}\n.uploader #start.hidden[data-v-5761a7b7] {\n  display: none;\n}\n.uploader #start i.fas[data-v-5761a7b7] {\n  font-size: 50px;\n  margin-bottom: 1rem;\n  transition: all .2s ease-in-out;\n}\n.uploader #response[data-v-5761a7b7] {\n  float: left;\n  clear: both;\n  width: 100%;\n}\n.uploader input[type=\"file\"][data-v-5761a7b7] {\n  display: none;\n}\n.uploader div[data-v-5761a7b7] {\n  margin: 0 0 .5rem 0;\n  color: #5f6982;\n}\n.img-container[data-v-5761a7b7]{\n  width: 100%;\n  min-height: 120px;\n  text-align: center;\n}\n.img-container.has-progress[data-v-5761a7b7]{\n    padding-top: 60px;\n}\n.img-container i.fa-exclamation-triangle[data-v-5761a7b7] {\n  font-size: 60px;\n  color: #900;\n}\n.img-container p[data-v-5761a7b7] {\n  color: #900;\n}\n.img-container img[data-v-5761a7b7] {\n  width: 100%;\n  max-height: 150px;\n}\n.img-container .img-manage[data-v-5761a7b7] {\n  position: absolute;\n  top: 50%;\n  left: 42%;\n  transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  list-style: none;\n}\n.img-container .img-manage li[data-v-5761a7b7]{\n    display:inline;\n}\n.img-container .img-manage a[data-v-5761a7b7] {\n    color: #fff;\n}\n.image[data-v-5761a7b7] {\n    float: left;\n    background-size: cover;\n    background-repeat: no-repeat;\n    background-position: center center;\n    border: 1px solid #ebebeb;\n    margin: 5px;\n}\n\n", ""]);
 
 // exports
 
@@ -41682,98 +41735,9 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "row" },
-              _vm._l(_vm.imgs, function(img, imageIndex) {
-                return _c(
-                  "div",
-                  {
-                    key: imageIndex,
-                    staticClass: "col-4",
-                    attrs: { "data-index": imageIndex }
-                  },
-                  [
-                    _c("div", { staticClass: "img-container" }, [
-                      img.name != undefined
-                        ? _c("img", { attrs: { src: "upload/" + img.name } })
-                        : _vm._e(),
-                      _vm._v(" "),
-                      img.icon == true
-                        ? _c("div", [
-                            _c("i", {
-                              staticClass: "fas fa-exclamation-triangle"
-                            })
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      img.text != ""
-                        ? _c("p", [_vm._v(_vm._s(img.text))])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c("ul", { staticClass: "img-manage" }, [
-                        img.name != undefined
-                          ? _c("li", [
-                              _c(
-                                "a",
-                                {
-                                  staticClass: "btn btn-info",
-                                  attrs: { src: "upload/" + img.name },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.openModal($event)
-                                    }
-                                  }
-                                },
-                                [_c("i", { staticClass: "fas fa-search" })]
-                              )
-                            ])
-                          : _vm._e(),
-                        _vm._v(" "),
-                        img.name != undefined
-                          ? _c("li", [
-                              _c(
-                                "a",
-                                {
-                                  staticClass: "btn btn-danger",
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.remove(imageIndex, img.id)
-                                    }
-                                  }
-                                },
-                                [_c("i", { staticClass: "far fa-trash-alt" })]
-                              )
-                            ])
-                          : _vm._e(),
-                        _vm._v(" "),
-                        img.name == undefined
-                          ? _c("li", [
-                              _c(
-                                "a",
-                                {
-                                  staticClass: "btn btn-danger",
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.removeUnwanted(imageIndex)
-                                    }
-                                  }
-                                },
-                                [_c("i", { staticClass: "far fa-trash-alt" })]
-                              )
-                            ])
-                          : _vm._e()
-                      ])
-                    ])
-                  ]
-                )
-              }),
-              0
-            ),
-            _vm._v(" "),
             _c("div", { staticClass: "row" }, [
               _c("div", { staticClass: "col-12" }, [
-                _c("div", { staticClass: "img-container have-progress" }, [
+                _c("div", { staticClass: "mb-3" }, [
                   _c("div", { staticClass: "progress" }, [
                     _c(
                       "div",
@@ -41792,11 +41756,167 @@ var render = function() {
                   ])
                 ])
               ])
-            ])
+            ]),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "row" },
+              _vm._l(_vm.imgs, function(img, imageIndex) {
+                return _c(
+                  "div",
+                  {
+                    key: imageIndex,
+                    staticClass: "col-4",
+                    attrs: { "data-index": imageIndex }
+                  },
+                  [
+                    _c(
+                      "div",
+                      {
+                        class: [
+                          img.progressPercent == undefined
+                            ? "img-container "
+                            : "img-container has-progress",
+                          ""
+                        ]
+                      },
+                      [
+                        img.name != undefined
+                          ? _c("img", { attrs: { src: "upload/" + img.name } })
+                          : _vm._e(),
+                        _vm._v(" "),
+                        img.icon == true
+                          ? _c("div", [
+                              _c("i", {
+                                staticClass: "fas fa-exclamation-triangle"
+                              })
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        img.text != ""
+                          ? _c("p", [_vm._v(_vm._s(img.text))])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        img.progressPercent == undefined
+                          ? _c("ul", { staticClass: "img-manage" }, [
+                              img.name != undefined
+                                ? _c("li", [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "btn btn-info",
+                                        attrs: { src: "upload/" + img.name },
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.openModal($event)
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c("i", {
+                                          staticClass: "fas fa-search"
+                                        })
+                                      ]
+                                    )
+                                  ])
+                                : _vm._e(),
+                              _vm._v(" "),
+                              img.name != undefined
+                                ? _c("li", [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "btn btn-danger",
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.remove(
+                                              imageIndex,
+                                              img.id
+                                            )
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c("i", {
+                                          staticClass: "far fa-trash-alt"
+                                        })
+                                      ]
+                                    )
+                                  ])
+                                : _vm._e(),
+                              _vm._v(" "),
+                              img.name == undefined
+                                ? _c("li", [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "btn btn-danger",
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.removeUnwanted(
+                                              imageIndex
+                                            )
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c("i", {
+                                          staticClass: "far fa-trash-alt"
+                                        })
+                                      ]
+                                    )
+                                  ])
+                                : _vm._e()
+                            ])
+                          : _c("div", { staticClass: "progress" }, [
+                              _c(
+                                "div",
+                                {
+                                  staticClass: "progress-bar",
+                                  style: "width: " + img.progressPercent + "%;",
+                                  attrs: {
+                                    role: "progressbar",
+                                    "aria-valuenow": img.progressPercent,
+                                    "aria-valuemin": "0",
+                                    "aria-valuemax": "100"
+                                  }
+                                },
+                                [_vm._v(_vm._s(img.progressPercent) + "%")]
+                              )
+                            ])
+                      ]
+                    )
+                  ]
+                )
+              }),
+              0
+            )
           ])
         ])
       ])
-    ])
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "row justify-content-center" },
+      _vm._l(_vm.imageList, function(n, index) {
+        return _c(
+          "div",
+          { key: index, staticClass: "list", attrs: { "data-index": index } },
+          [
+            _c("img", {
+              attrs: { src: n.url },
+              on: {
+                click: function($event) {
+                  return _vm.open($event)
+                }
+              }
+            })
+          ]
+        )
+      }),
+      0
+    )
   ])
 }
 var staticRenderFns = [

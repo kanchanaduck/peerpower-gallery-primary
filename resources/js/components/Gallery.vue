@@ -15,24 +15,27 @@
                             </label>
                         </form>
                         <div class="row">
-                            <div class="col-4" v-for="(img, imageIndex) in imgs" :key="imageIndex" :data-index="imageIndex">
-                                <div class="img-container">
-                                    <img v-bind:src="'upload/'+ img.name " v-if="img.name!=undefined">
-                                    <div v-if="img.icon==true"><i class="fas fa-exclamation-triangle"></i></div>
-                                    <p v-if="img.text!=''">{{ img.text }}</p>
-                                    <ul class="img-manage">
-                                        <li v-if="img.name!=undefined"><a class="btn btn-info" @click="openModal($event)" v-bind:src="'upload/'+ img.name "><i class="fas fa-search"></i></a></li>
-                                        <li v-if="img.name!=undefined"><a class="btn btn-danger" @click="remove(imageIndex, img.id)"><i class="far fa-trash-alt"></i></a></li>
-                                        <li v-if="img.name==undefined"><a class="btn btn-danger" @click="removeUnwanted(imageIndex)"><i class="far fa-trash-alt"></i></a></li>
-                                    </ul>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" v-bind:style="'width: '+uploadPercentage+'%;'" v-bind:aria-valuenow="uploadPercentage" aria-valuemin="0" aria-valuemax="100">{{uploadPercentage}}%</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12">
-                                <div class="img-container have-progress">
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" v-bind:style="'width: '+uploadPercentage+'%;'" v-bind:aria-valuenow="uploadPercentage" aria-valuemin="0" aria-valuemax="100">{{uploadPercentage}}%</div>
+                            <div class="col-4" v-for="(img, imageIndex) in imgs" :key="imageIndex" :data-index="imageIndex">
+                                <div v-bind:class="[img.progressPercent==undefined ? 'img-container ' : 'img-container has-progress', ''] ">
+                                    <img v-bind:src="'upload/'+ img.name " v-if="img.name!=undefined">
+                                    <div v-if="img.icon==true"><i class="fas fa-exclamation-triangle"></i></div>
+                                    <p v-if="img.text!=''">{{ img.text }}</p>
+                                    <ul class="img-manage" v-if="img.progressPercent==undefined">
+                                        <li v-if="img.name!=undefined"><a class="btn btn-info" @click="openModal($event)" v-bind:src="'upload/'+ img.name "><i class="fas fa-search"></i></a></li>
+                                        <li v-if="img.name!=undefined"><a class="btn btn-danger" @click="remove(imageIndex, img.id)"><i class="far fa-trash-alt"></i></a></li>
+                                        <li v-if="img.name==undefined"><a class="btn btn-danger" @click="removeUnwanted(imageIndex)"><i class="far fa-trash-alt"></i></a></li>
+                                    </ul>
+                                    <div class="progress" v-else>
+                                        <div class="progress-bar" role="progressbar" v-bind:style="'width: '+img.progressPercent+'%;'" v-bind:aria-valuenow="img.progressPercent" aria-valuemin="0" aria-valuemax="100">{{img.progressPercent}}%</div>
                                     </div>
                                 </div>
                             </div>
@@ -128,6 +131,54 @@ export default {
                     }); 
             }
         },
+        /* processFile: function(e){
+            let currentObj = this;
+            for( var i = 0; i < e.target.files.length; i++ ){
+            let formData = new FormData();
+                let file = e.target.files[i];
+                if(file.type!='image/jpeg' && file.type!='image/png'){
+                    this.imgs.push({
+                        text: 'File type not supported. - '+file.name,
+                        icon: true,
+                    })
+                }
+                else if(file.size>10485760){
+                    this.imgs.push({
+                        text: 'File size exceeded. - '+file.name,
+                        icon: true,
+                    })
+                }
+                else{
+                    formData.append('files[0]', file);
+                    axios.post(
+                    '/store', 
+                    formData, {
+                        headers: {
+                            'content-type': 'multipart/form-data',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        onUploadProgress: function( progressEvent ) {
+                            currentObj.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
+                            currentObj.imgs.push({
+                                progressPercent: parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
+                            })
+                        }.bind(this)
+                    })
+                    .then(function (response) {
+                        response.data.files.forEach(function(entry) {
+                            currentObj.imgs.push({
+                                id: entry.insert_id,
+                                name: entry.file_name
+                            })
+                        })
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    }); 
+                }
+            }
+            
+        },  */
         remove : function(index, id) {
             let currentObj = this;
             axios.delete(
@@ -145,10 +196,14 @@ export default {
         openModal: function(e){
             let img = e.target.closest('.img-container').querySelector('img')
             console.log(img);
-            fancyBox(img, this.imgs);
+            console.log(this.imgs);
+            
+            // fancyBox(img, this.imgs);
         },
         open: function(e) {
             console.log(e.target);
+            console.log(this.imageList);
+            
             fancyBox(e.target, this.imageList);
         }
     },
@@ -222,7 +277,7 @@ export default {
   min-height: 120px;
   text-align: center;
 }
-.img-container.have-progress{
+.img-container.has-progress{
     padding-top: 60px;
 }
 .img-container i.fa-exclamation-triangle {

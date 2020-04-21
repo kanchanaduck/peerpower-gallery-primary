@@ -23,7 +23,6 @@ class ImageController extends Controller
     public function main()
     {
         return view('pages.main');
-        // return response()->json(Auth::user()->id);
     }
     public function lists()
     {
@@ -39,7 +38,7 @@ class ImageController extends Controller
     }
     public function store(StoreImage $request)
     {
-        
+
         $upload_path = public_path('upload');
         $file = $request->file('files');
         $file_type = $file->getMimeType();

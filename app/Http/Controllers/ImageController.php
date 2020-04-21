@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Image;
 use DB;
 use Auth; 
+use App\Http\Requests\StoreImage;
 
 class ImageController extends Controller
 {
@@ -36,48 +37,27 @@ class ImageController extends Controller
                 ->groupBy('type')
             ->get());
     }
-    public function store(Request $request)
+    public function store(StoreImage $request)
     {
+        
         $upload_path = public_path('upload');
-        $detail = [];
-        $files = $request->file('files');
-        $countSuccess = 0;
-        foreach($files as $key => $file){
-            $file_name = $file->getClientOriginalName();
-            $file_type = $file->getMimeType();
-            $file_size = $file->getSize();
-            $ext = $file->getClientOriginalExtension();
-            if(  ($ext=='jpg' || $ext=='png' || $ext=='jpeg') && $file_size<= 10485760){
-                $new_name = time() . $key . '.' . $ext;
-                $file->move($upload_path, $new_name);
+        $file = $request->file('files');
+        $file_type = $file->getMimeType();
+        $file_size = $file->getSize();
+        $ext = $file->getClientOriginalExtension();
+        $new_name = time().'.' . $ext;
+        $file->move($upload_path, $new_name);
 
-                $image = Image::create([
-                    'name' => $new_name,
-                    'type' => $file_type,
-                    'size' => $file_size,
-                    'user_id' => Auth::user()->id
-                ]);
+        $image = Image::create([
+            'name' => $new_name,
+            'type' => $file_type,
+            'size' => $file_size,
+            'user_id' => Auth::user()->id
+        ]);
 
-                $d = (object) [
-                    'insert_id' => $image->id,
-                    'file_name' => $new_name,
-                    'file_type' => $file_type,
-                    'file_size' => $file_size
-                ];
-                array_push($detail,$d);
-                $countSuccess++;
-            }
-        }
-        if($countSuccess>0){
-            return response()->json([
-                'success' => 'You have successfully uploaded',
-                'files' => $detail
-            ]);
-        }
-        else{
-            return response()->json([
-                'not_success' => 'File(s) not supported.',
-            ]);
-        }
+        return response()->json([
+            'success' => 'You have successfully uploaded',
+            'files' => $image
+        ]);
     }
 }

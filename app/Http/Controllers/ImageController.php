@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Image;
 use DB;
 use Auth; 
+use Illuminate\Http\File;
 use App\Http\Requests\StoreImage;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -39,13 +41,13 @@ class ImageController extends Controller
     public function store(StoreImage $request)
     {
 
-        $upload_path = public_path('upload');
         $file = $request->file('files');
         $file_type = $file->getMimeType();
         $file_size = $file->getSize();
         $ext = $file->getClientOriginalExtension();
         $new_name = time().'.' . $ext;
-        $file->move($upload_path, $new_name);
+        
+        $file->storeAs('upload', $new_name);
 
         $image = Image::create([
             'name' => $new_name,

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Image;
 use DB;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -17,7 +18,7 @@ class ImageController extends Controller
     public function destroy($id)
     {
         $image = Image::findOrFail($id);
-        unlink(public_path('upload').'/'.$image->name);
+        Storage::disk('upload')->delete($image->name);
         $image->delete();
         return response()->noContent();
     }

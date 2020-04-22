@@ -59,6 +59,6 @@ class ImageController extends Controller
         return response()->json([
             'success' => 'You have successfully uploaded',
             'files' => $image
-        ]);
+        ], 201);
     }
 }

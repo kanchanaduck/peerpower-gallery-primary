@@ -107,54 +107,121 @@ class UnitTest extends TestCase
     public function testStoreRoutePngNotOver10()
     {
         Storage::fake('upload');
-        $file = UploadedFile::fake()->image('avatar.png')->size(10485759); 
-        $user = factory(User::class)->make();
+        $file = UploadedFile::fake()->image('avatar.png')->size(1102); 
+        $user = factory(User::class)->create();
         $response = $this->actingAs($user)->post('/store', [
-            'files[]' => $file,
+            'files' => $file,
         ]);
-        // $response->assertStatus(201);
-        Storage::disk('upload')->assertExists(time().'0.'.$file->getClientOriginalExtension());
-        Storage::disk('upload')->assertMissing('missing.jpg');
+        dd($response);
+        $filename = $file->getClientOriginalName();
+        $file_name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = $file->getClientOriginalExtension();
+        $new_name = $file_name.'_'.time().'.' . $ext;
+        $this->assertDatabaseHas('images', [
+            'name' => $new_name,
+        ]);
+        $response->assertStatus(201);
+        Storage::disk('upload')->assertExists($new_name);
     }
     public function testStoreRoutePngOver10(){
         Storage::fake('upload');
-        $file = UploadedFile::fake()->image('avatar.png')->size(10485761); 
-        $user = factory(User::class)->make();
+        $file = UploadedFile::fake()->image('avatar.png')->size(10245); 
+        $user = factory(User::class)->create();
         $response = $this->actingAs($user)->post('/store', [
-            'files[]' => $file,
+            'files' => $file,
         ]);
-        // $response->assertStatus(201);
-        Storage::disk('upload')->assertExists(time().'0.'.$file->getClientOriginalExtension());
-        Storage::disk('upload')->assertMissing('missing.jpg');
+        $filename = $file->getClientOriginalName();
+        $file_name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = $file->getClientOriginalExtension();
+        $new_name = $file_name.'_'.time().'.' . $ext;
+        $this->assertDatabaseMissing('images', [
+            'name' => $new_name,
+        ]);
+        $response->assertStatus(422);
+        Storage::disk('upload')->assertMissing($new_name);
     }
-    /*public function testStoreRouteJpgNotOver10(){
-        
+    public function testStoreRouteJpgNotOver10(){
+        Storage::fake('upload');
+        $file = UploadedFile::fake()->image('avatar.jpg')->size(1102); 
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user)->post('/store', [
+            'files' => $file,
+        ]);
+        $filename = $file->getClientOriginalName();
+        $file_name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = $file->getClientOriginalExtension();
+        $new_name = $file_name.'_'.time().'.' . $ext;
+        $this->assertDatabaseHas('images', [
+            'name' => $new_name,
+        ]);
+        $response->assertStatus(201);
+        Storage::disk('upload')->assertExists($new_name);
     }
     public function testStoreRouteJpgOver10(){
-        
+        Storage::fake('upload');
+        $file = UploadedFile::fake()->image('avatar.jpg')->size(10245); 
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user)->post('/store', [
+            'files' => $file,
+        ]);
+        $filename = $file->getClientOriginalName();
+        $file_name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = $file->getClientOriginalExtension();
+        $new_name = $file_name.'_'.time().'.' . $ext;
+        $this->assertDatabaseMissing('images', [
+            'name' => $new_name,
+        ]);
+        $response->assertStatus(422); 
+        Storage::disk('upload')->assertMissing($new_name);
     }
     public function testStoreRouteGifNotOver10(){
-        
+        Storage::fake('upload');
+        $file = UploadedFile::fake()->image('avatar.gif')->size(1102); 
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user)->post('/store', [
+            'files' => $file,
+        ]);
+        $filename = $file->getClientOriginalName();
+        $file_name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = $file->getClientOriginalExtension();
+        $new_name = $file_name.'_'.time().'.' . $ext;
+        $this->assertDatabaseHas('images', [
+            'name' => $new_name,
+        ]);
+        $response->assertStatus(201);
+        Storage::disk('upload')->assertExists($new_name);
     }
     public function testStoreRouteGifOver10(){
-        
-    } */
-    /* public function testDeleteGalleryApiWithDataExists()
+        Storage::fake('upload');
+        $file = UploadedFile::fake()->image('avatar.gif')->size(10245); 
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user)->post('/store', [
+            'files' => $file,
+        ]);
+        $filename = $file->getClientOriginalName();
+        $file_name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = $file->getClientOriginalExtension();
+        $new_name = $file_name.'_'.time().'.' . $ext;
+        $this->assertDatabaseMissing('images', [
+            'name' => $new_name,
+        ]);
+        $response->assertStatus(422); 
+        Storage::disk('upload')->assertMissing($new_name);
+    }
+    public function testDeleteGalleryApiWithDataExists()
     {
         $user = factory(User::class)->make();
         Storage::fake('upload');
         $image = factory(Image::class)->make();
-        $file = UploadedFile::fake()->image('avatar.png')->size(10485759); 
-        $response = $this->actingAs($user)->call('DELETE','images/7');
-        dd($response);
-        // $response->assertStatus(200);
-        // $response->notSeeInDatabase('images', ['id' => 7]);
-    } */
-    /* public function testDeleteGalleryApiWithDataNotExists()
+        $file = UploadedFile::fake('upload')->image('avatar.png')->size(13);
+        $response = $this->actingAs($user)->call('DELETE','api/image/1');
+        $response->assertStatus(204);
+    }
+    public function testDeleteGalleryApiWithDataNotExists()
     {
         $user = factory(User::class)->make();
-        $response = $this->actingAs($user)->call('DELETE','images/3');
+        $response = $this->actingAs($user)->call('DELETE','api/image/3');
         $response->assertStatus(404);
-    } */
+    }
    
 }

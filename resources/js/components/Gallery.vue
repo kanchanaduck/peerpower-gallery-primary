@@ -1,5 +1,22 @@
 <template>
     <div class="container">
+        <div class="modal fade" tabindex="-1" role="dialog" id=exampleModal>
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img v-bind:src="'upload/'+ imgModal " class="img-fluid" v-if="imgModal!=null">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+            </div>
+        </div>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
@@ -29,8 +46,8 @@
                                     <img v-bind:src="'upload/'+ img.name " v-if="img.name!=undefined">
                                     <div v-if="img.icon==true"><i class="fas fa-exclamation-triangle"></i></div>
                                     <p v-if="img.text!=''">{{ img.text }}</p>
-                                    <ul class="img-manage" v-if="img.progressPercent==undefined">
-                                        <li v-if="img.name!=undefined"><a class="btn btn-info" @click="openModal($event)" v-bind:src="'upload/'+ img.name "><i class="fas fa-search"></i></a></li>
+                                    <ul class="img-manage" v-if="img.progressPercent==undefined"> 
+                                        <li v-if="img.name!=undefined"><a class="btn btn-info" @click="openModal(img.name)" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo" v-bind:src="'upload/'+ img.name "><i class="fas fa-search"></i></a></li>
                                         <li v-if="img.name!=undefined"><a class="btn btn-danger" @click="remove(imageIndex, img.id)"><i class="far fa-trash-alt"></i></a></li>
                                         <li v-if="img.name==undefined"><a class="btn btn-danger" @click="removeUnwanted(imageIndex)"><i class="far fa-trash-alt"></i></a></li>
                                     </ul>
@@ -63,12 +80,8 @@ export default {
             imgs: [],
             index: null,
             show: null,
-            imageList: [
-                { url: 'https://picsum.photos/id/237/200/300' },
-                { url: 'https://picsum.photos/id/238/200/300' },
-                { url: 'https://picsum.photos/id/239/200/300' }
-            ],
-            uploadPercentage: 0
+            uploadPercentage: 0,
+            imgModal: null, 
         }
     },
     mounted() {
@@ -86,7 +99,6 @@ export default {
         processFile: function(e){
             let currentObj = this;
             let formData = new FormData();
-            let countData = 0;
             for( var i = 0; i < e.target.files.length; i++ ){
                 let file = e.target.files[i];
                 if(file.type!='image/jpeg' && file.type!='image/png'){
@@ -102,83 +114,48 @@ export default {
                     })
                 }
                 else{
-                    formData.append('files[' + i + ']', file);
-                    countData++;
-                }
-            }
-            if(countData>0){
-                axios.post(
-                    '/store', 
-                    formData, {
-                        headers: {
-                            'content-type': 'multipart/form-data',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        onUploadProgress: function( progressEvent ) {
-                            currentObj.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
-                        }.bind(this)
+                    formData.append('files', file);
+                    axios.post('/store', formData, {
+                    onUploadProgress: progressEvent => {
+                        if (progressEvent.loaded === progressEvent.total) {
+                            this.progress.current++
+                        }
+                        // save the individual file's progress percentage in object
+                        this.fileProgress[file.name] = progressEvent.loaded * 100 / progressEvent.total
+                        // sum up all file progress percentages to calculate the overall progress
+                        let totalPercent = this.fileProgress ? Object.values(this.fileProgress).reduce((sum, num) => sum + num, 0) : 0
+                        // divide the total percentage by the number of files
+                        this.progress.percent = parseInt(Math.round(totalPercent / this.progress.total))
+                    }
                     })
-                    .then(function (response) {
-                        response.data.files.forEach(function(entry) {
+                    /* axios.post(
+                        '/store', 
+                        formData, {
+                            headers: {
+                                'content-type': 'multipart/form-data',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Authorization': 'Bearer '.$token,
+                                'Accept': 'application/json',
+                            },
+                            onUploadProgress: function( progressEvent ) {
+                                currentObj.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
+                            }.bind(this)
+                        })
+                        .then(function (response) {
                             currentObj.imgs.push({
-                                id: entry.insert_id,
-                                name: entry.file_name
+                                id: response.data.files.id,
+                                name: response.data.files.name
                             })
                         })
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    }); 
+                        .catch(function (error) {
+                            console.log(error);
+                        });  */
+                }
             }
         },
-        /* processFile: function(e){
-            let currentObj = this;
-            for( var i = 0; i < e.target.files.length; i++ ){
-            let formData = new FormData();
-                let file = e.target.files[i];
-                if(file.type!='image/jpeg' && file.type!='image/png'){
-                    this.imgs.push({
-                        text: 'File type not supported. - '+file.name,
-                        icon: true,
-                    })
-                }
-                else if(file.size>10485760){
-                    this.imgs.push({
-                        text: 'File size exceeded. - '+file.name,
-                        icon: true,
-                    })
-                }
-                else{
-                    formData.append('files[0]', file);
-                    axios.post(
-                    '/store', 
-                    formData, {
-                        headers: {
-                            'content-type': 'multipart/form-data',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        onUploadProgress: function( progressEvent ) {
-                            currentObj.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
-                            currentObj.imgs.push({
-                                progressPercent: parseInt( Math.round( ( progressEvent.loaded / progressEvent.total ) * 100 ))
-                            })
-                        }.bind(this)
-                    })
-                    .then(function (response) {
-                        response.data.files.forEach(function(entry) {
-                            currentObj.imgs.push({
-                                id: entry.insert_id,
-                                name: entry.file_name
-                            })
-                        })
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    }); 
-                }
-            }
-            
-        },  */
+        openModal : function(img) {
+            this.imgModal = img 
+        },
         remove : function(index, id) {
             let currentObj = this;
             axios.delete(
@@ -193,19 +170,6 @@ export default {
         removeUnwanted : function(index) {
             this.$delete(this.imgs, index)
         },
-        openModal: function(e){
-            let img = e.target.closest('.img-container').querySelector('img')
-            console.log(img);
-            console.log(this.imgs);
-            
-            // fancyBox(img, this.imgs);
-        },
-        open: function(e) {
-            console.log(e.target);
-            console.log(this.imageList);
-            
-            fancyBox(e.target, this.imageList);
-        }
     },
     computed:{
         groupedImage() {
@@ -214,6 +178,8 @@ export default {
     }
 }
 </script>
+
+
 
 <style scoped>
 .uploader {
@@ -313,5 +279,68 @@ export default {
     border: 1px solid #ebebeb;
     margin: 5px;
   }
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: table;
+  transition: opacity 0.3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+  width: 300px;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-header h3 {
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-default-button {
+  float: right;
+}
+
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
 
 </style>

@@ -44,8 +44,9 @@ class ImageController extends Controller
         $file = $request->file('files');
         $file_type = $file->getMimeType();
         $file_size = $file->getSize();
+        $file_name = $file->getClientOriginalName();
         $ext = $file->getClientOriginalExtension();
-        $new_name = time().'.' . $ext;
+        $new_name = $file_name.'_'.time().'.' . $ext;
         
         $file->storeAs('upload', $new_name);
 

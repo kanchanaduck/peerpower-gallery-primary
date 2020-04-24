@@ -112,7 +112,6 @@ class UnitTest extends TestCase
         $response = $this->actingAs($user)->post('/store', [
             'files' => $file,
         ]);
-        dd($response);
         $filename = $file->getClientOriginalName();
         $file_name = pathinfo($filename, PATHINFO_FILENAME);
         $ext = $file->getClientOriginalExtension();

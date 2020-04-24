@@ -4,20 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Image;
-use DB;
 use Auth; 
+use DB;
 use Illuminate\Http\File;
 use App\Http\Requests\StoreImage;
 use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        DB::enableQueryLog();
-        // return response()->json(DB::getQueryLog());
-    }
     public function index()
     {
         return view('pages.gallery');
@@ -49,7 +43,7 @@ class ImageController extends Controller
         $ext = $file->getClientOriginalExtension();
         $new_name = $file_name.'_'.time().'.' . $ext;
         
-        $file->storeAs('upload', $new_name);
+        Storage::putFileAs('upload', $file, $new_name);
 
         $image = Image::create([
             'name' => $new_name,

@@ -20,10 +20,12 @@ Route::get('/', 'HomeController@index');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('main', 'ImageController@main')->name('main');
-Route::get('gallery', 'ImageController@index')->name('gallery');
-Route::get('lists', 'ImageController@lists')->name('gallery.lists');
-Route::get('group', 'ImageController@group')->name('gallery.group');
-Route::post('store', 'ImageController@store')->name('gallery.store');
+Route::middleware('auth')->group(function () {
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::get('main', 'ImageController@main')->name('main');
+    Route::get('gallery', 'ImageController@index')->name('gallery');
+    Route::get('lists', 'ImageController@lists')->name('gallery.lists');
+    Route::get('group', 'ImageController@group')->name('gallery.group');
+    Route::post('store', 'ImageController@store')->name('gallery.store');
+});
 
